@@ -29,18 +29,24 @@ public:
 
     void setOpenFileButton(bool calib);
 
+    void setActiveCalibMenu();
+
+    void setDisableCalibMenu();
+
 private slots:
     void on_openFileButton_clicked();
 
     QPixmap traitement_image(QString filename);
-
-    void on_validationButton_clicked();
 
     void on_bottomLeftButton_clicked();
 
     void on_bottomRightBottom_clicked();
 
     void on_testImageButton_clicked();
+
+    void on_validNoButton_clicked();
+
+    void on_validYesButton_clicked();
 
 private:
     Ui::MainWindow *ui;

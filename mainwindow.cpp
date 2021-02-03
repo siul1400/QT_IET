@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     ui->tabWidget->setTabEnabled(1, calibration.getCalib());
+    setActiveCalibMenu();
 }
 
 MainWindow::~MainWindow()
@@ -21,6 +22,28 @@ MainWindow::~MainWindow()
 void MainWindow::setOpenFileButton(bool calib)
 {
     ui->openFileButton->setEnabled(calib);
+}
+
+void MainWindow::setActiveCalibMenu()
+{
+    if(!calibration.getCalib()){
+        ui->bottomLeftButton->setEnabled(true);
+        ui->bottomRightBottom->setEnabled(true);
+        ui->testImageButton->setEnabled(false);
+        ui->validNoButton->setEnabled(false);
+        ui->validYesButton->setEnabled(false);
+    }
+}
+
+void MainWindow::setDisableCalibMenu()
+{
+    if(calibration.getCalib()){
+        ui->bottomLeftButton->setEnabled(false);
+        ui->bottomRightBottom->setEnabled(false);
+        ui->testImageButton->setEnabled(true);
+        ui->validNoButton->setEnabled(true);
+        ui->validYesButton->setEnabled(true);
+    }
 }
 
 
@@ -77,12 +100,6 @@ QPixmap MainWindow::traitement_image(QString fileName)
     return jvPhoto.scaled(ui->centralwidget->geometry().right(), ui->centralwidget->geometry().bottom(), Qt::KeepAspectRatioByExpanding);
 }
 
-void MainWindow::on_validationButton_clicked()
-{
-    calibration.setCalib(!calibration.getCalib());
-    ui->tabWidget->setTabEnabled(1, calibration.getCalib());
-}
-
 void MainWindow::on_bottomLeftButton_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Text"),
@@ -90,6 +107,8 @@ void MainWindow::on_bottomLeftButton_clicked()
                                                     tr("Image File (*.jpg)"));
     if(!calibration.searchCircle(fileName, 20, 40, "Left")){
         QMessageBox::warning(this, "Erreur", calibration.getError());
+    }else{
+        setDisableCalibMenu();
     }
 }
 
@@ -100,16 +119,28 @@ void MainWindow::on_bottomRightBottom_clicked()
                                                     tr("Image File (*.jpg)"));
     if(!calibration.searchCircle(fileName, 20, 40, "Right")){
         QMessageBox::warning(this, "Erreur", calibration.getError());
+    }else{
+        setDisableCalibMenu();
     }
 }
 
 void MainWindow::on_testImageButton_clicked()
 {
-
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Text"),
                                                     "/Users/prof/Documents/TS2SN/Luis/Projet/OpenCv",
                                                     tr("Image File (*.jpg)"));
 
 
     ui->imageTestLabel->setPixmap(traitement_image(fileName));
+}
+
+void MainWindow::on_validNoButton_clicked()
+{
+    calibration.setCalib(false);
+    setActiveCalibMenu();
+}
+
+void MainWindow::on_validYesButton_clicked()
+{
+
 }
