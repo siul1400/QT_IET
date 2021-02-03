@@ -9,7 +9,7 @@
 #include <QString>
 #include <QDebug>
 #include <vector>
-#include <QMessageBox>
+#include <QFile>
 
 
 using namespace cv;
@@ -20,16 +20,13 @@ class Calibration
 public:
     Calibration();
 
-
-    int x1, x2, y1, y2, radius1, radius2 = 0;
-
     // Getter/Setter pour Calib
     void setCalib(bool calib);
     bool getCalib();
 
     int getXYR(QString var, int number);
 
-    bool searchCircle(QString filename, int minRadiusParam, int maxRadiusParam, QString pos);
+    bool searchCircle(QString fileNameParam, int minRadiusParam, int maxRadiusParam, QString pos);
 
     QString getError();
 
@@ -40,7 +37,7 @@ private:
     int maxRadius[2];
     int x[2];
     int y[2];
-    QString fileNamePath[3];
+    QString fileNamePath[2];
     QString error = "";
 };
 

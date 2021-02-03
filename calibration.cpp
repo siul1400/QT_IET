@@ -4,13 +4,12 @@
 
 Calibration::Calibration()
 {
-    for(int i = 0; i < 3; i++){
+    for(int i = 0; i < 2; i++){
         fileNamePath[i] = "";
         minRadius[i] = 0;
         maxRadius[i] = 0;
         x[i] = 0;
         y[i] = 0;
-        qDebug() << "ici";
     }
 }
 
@@ -48,14 +47,20 @@ int Calibration::getXYR(QString var, int number)
     return 0;
 }
 
-bool Calibration::searchCircle(QString fileName, int minRadiusParam, int maxRadiusParam, QString pos)
+bool Calibration::searchCircle(QString fileNameParam, int minRadiusParam, int maxRadiusParam, QString pos)
 {
-    if(fileName == NULL){
+    if(fileNameParam == NULL){
         error = "Aucun fichier chargé";
         return false;
     }
 
-    const char* filename = fileName.toUtf8(); // On enregistre le lien local de l'image.
+    if(!QFile::exists(fileNameParam)){
+        error = "Fichier non trouvé: " + fileNameParam;
+        return false;
+    }
+    fileNamePath[1] = "";
+    fileNamePath[0] = "";
+    const char* filename = fileNameParam.toUtf8(); // On enregistre le lien local de l'image.
     Mat src = imread( samples::findFile( filename ), IMREAD_COLOR ); // Permet de charger l'image, indiqué dans filename.
 
     src = src.rowRange(src.size().height/2, src.size().height); // On coupe l'image en deux.
@@ -68,12 +73,8 @@ bool Calibration::searchCircle(QString fileName, int minRadiusParam, int maxRadi
         index = 1;
     }
 
-    qDebug() << "test1";
-    qDebug() << fileName;
-    qDebug() << index;
-    fileNamePath[index] = fileName;
-    qDebug() << "test2";
-    qDebug() << fileName;
+    fileNamePath[index] = fileNameParam;
+
     Mat gray; // Créer une matrice nommé gray qui sera allouée dynamiquement.
     cvtColor(src, gray, COLOR_BGR2GRAY); // Permet de convertir l'image Blue Green Red en gray.
 
