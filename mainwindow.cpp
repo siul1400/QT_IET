@@ -32,6 +32,8 @@ void MainWindow::setActiveCalibMenu()
         ui->testImageButton->setEnabled(false);
         ui->validNoButton->setEnabled(false);
         ui->validYesButton->setEnabled(false);
+
+        Cercle* cercle = new Cercle(calibration.getXYR("x"), calibration.getXYR("y"), calibration.getXYR("rmin"), calibration.getXYR("rmax"));
     }
 }
 
@@ -49,11 +51,10 @@ void MainWindow::setDisableCalibMenu()
 
 void MainWindow::on_openFileButton_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Text"),
-                                                    "/Users/prof/Documents/TS2SN/Luis/Projet/OpenCv",
-                                                    tr("Image File (*.jpg)"));
-
-    ui->imageLabel->setPixmap(traitement_image(fileName));
+    QString fileName = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                         "/Users/prof/Documents/TS2SN/Luis/Projet/OpenCv",
+                                                         QFileDialog::ShowDirsOnly
+                                                         | QFileDialog::DontResolveSymlinks);
 }
 
 
@@ -78,7 +79,7 @@ QPixmap MainWindow::traitement_image(QString fileName)
     vector<Vec3f> circles;
     HoughCircles(gray, circles, HOUGH_GRADIENT, 1, // Utilisation de la transformation de Hough, technique de reconnaissance de formes.
                  gray.rows/16,  // change this value to detect circles with different distances to each other
-                 100, 30, calibration.getXYR("r", 0), calibration.getXYR("r", 1) // change the last two parameters
+                 100, 30, calibration.getXYR("rmin")[0], calibration.getXYR("rmax")[0] // change the last two parameters
                  // (min_radius & max_radius) to detect larger circles
                  );
     qDebug() << "Nombre de cercle détecté: " + QString::number(circles.size());
@@ -90,7 +91,7 @@ QPixmap MainWindow::traitement_image(QString fileName)
         int radius = c[2];
         circle( src, center, radius, Scalar(255,0,255), 3, LINE_AA); // Permet l'affichage du cercle.
     }
-       Point p1(calibration.getXYR("x", 0),calibration.getXYR("y", 0)), p2(calibration.getXYR("x", 1),calibration.getXYR("y", 1));
+       Point p1(calibration.getXYR("x")[0],calibration.getXYR("y")[0]), p2(calibration.getXYR("x")[1],calibration.getXYR("y")[1]);
        Scalar colorLine(0,255,0); // Green
        int thicknessLine = 2;
 
@@ -102,6 +103,7 @@ QPixmap MainWindow::traitement_image(QString fileName)
 
 void MainWindow::on_bottomLeftButton_clicked()
 {
+    QMessageBox::information(this, "Choisir un fichier", "Veuillez choisir l'image où le ballon est situé en bas à gauche.");
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Text"),
                                                     "/Users/prof/Documents/TS2SN/Luis/Projet/OpenCv",
                                                     tr("Image File (*.jpg)"));
@@ -114,6 +116,7 @@ void MainWindow::on_bottomLeftButton_clicked()
 
 void MainWindow::on_bottomRightBottom_clicked()
 {
+    QMessageBox::information(this, "Choisir un fichier", "Veuillez choisir l'image où le ballon est situé en bas à droite.");
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Text"),
                                                     "/Users/prof/Documents/TS2SN/Luis/Projet/OpenCv",
                                                     tr("Image File (*.jpg)"));
@@ -142,5 +145,5 @@ void MainWindow::on_validNoButton_clicked()
 
 void MainWindow::on_validYesButton_clicked()
 {
-
+    ui->tabWidget->setTabEnabled(1, calibration.getCalib());
 }

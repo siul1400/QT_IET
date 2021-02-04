@@ -8,6 +8,7 @@
 #include "opencv2/imgproc.hpp"
 #include "vector"
 #include "calibration.h"
+#include "cercle.h"
 
 #include <QFileDialog>
 #include <QPixmap>
@@ -51,5 +52,6 @@ private slots:
 private:
     Ui::MainWindow *ui;
     Calibration calibration;
+    Cercle* cercle;
 };
 #endif // MAINWINDOW_H

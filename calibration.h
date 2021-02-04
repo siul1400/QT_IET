@@ -37,11 +37,10 @@ public:
 
     /**
      * @brief getXYR, Permet de retourné la variable demandé.
-     * @param varParam, Permet de choisir qu'elle variable est retourné (x, y ou r), en QString.
-     * @param number, Permet de choisir l'index du tableau (x,y ou r), en Int.
+     * @param varParam, Permet de choisir qu'elle variable est retourné (x, y ou rmin, rmax), en QString.
      * @return
      */
-    int getXYR(QString varParam, int numberParam);
+    int* getXYR(QString varParam);
 
     /**
      * @brief searchCircle, Permet d'avoir les coordonnées xy d'un ballon situé en bas à gauche et en bas à droite d'une image.
@@ -64,7 +63,7 @@ private:
     /**
      * @brief precision, Permet de choisir le niveau de précision de la détéction (ici la précision est de 10 px) en Int.
      */
-    int precision = 1;
+    int precision = 5;
 
     /**
      * @brief isCalib, Permet de choisir si le système de calibration est active ou non, en Boolean.

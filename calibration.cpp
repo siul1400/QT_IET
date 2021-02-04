@@ -23,28 +23,21 @@ bool Calibration::getCalib()
     return isCalib;
 }
 
-int Calibration::getXYR(QString var, int number)
+int* Calibration::getXYR(QString varParam)
 {
-    if(var == "x"){
-        if(number == 0){
-            return x[0];
-        }else if(number == 1){
-            return x[1];
-        }
-    }else if (var == "y"){
-        if(number == 0){
-            return y[0];
-        }else if(number == 1){
-            return y[1];
-        }
-    }else if (var == "r"){
-        if(number == 0){
-            return minRadius[0];
-        }else if(number == 1){
-            return maxRadius[0];
-        }
+    if(varParam == "x"){
+        return x;
+    }else if (varParam == "y"){
+        return y;
+    }else if (varParam == "rmin"){
+        return minRadius;
+    }else if(varParam == "rmax"){
+        return maxRadius;
     }
-    return 0;
+    int err[2];
+    err[0] = 0;
+    err[1] = 0;
+    return err;
 }
 
 
