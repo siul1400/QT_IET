@@ -14,3 +14,8 @@ Cercle::Cercle(int* xParam, int* yParam, int* rminParam, int* rmaxParam)
     maxRadius[0] = rmaxParam[0];
     maxRadius[1] = rmaxParam[1];
 }
+
+QString Cercle::getError()
+{
+    return error;
+}
