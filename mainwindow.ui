@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>663</height>
+    <width>898</width>
+    <height>717</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -39,13 +39,44 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="calibTab">
        <attribute name="title">
         <string>Calibration </string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
+        <item row="4" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QPushButton" name="validNoButton">
+            <property name="text">
+             <string>Non</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="validYesButton">
+            <property name="text">
+             <string>Oui</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="imageTestLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
@@ -108,22 +139,9 @@
          </layout>
         </item>
         <item row="3" column="0">
-         <widget class="QPushButton" name="validationButton">
+         <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>Validation</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="imageTestLabel">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>TextLabel</string>
+           <string>La calibration est-elle bonne ?</string>
           </property>
          </widget>
         </item>
@@ -174,7 +192,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>898</width>
      <height>21</height>
     </rect>
    </property>

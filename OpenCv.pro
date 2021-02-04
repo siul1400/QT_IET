@@ -15,11 +15,13 @@ PKGCONFIG += opencv4
 
 SOURCES += \
     calibration.cpp \
+    cercle.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     calibration.h \
+    cercle.h \
     mainwindow.h
 
 FORMS += \

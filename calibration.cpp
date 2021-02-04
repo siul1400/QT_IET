@@ -23,52 +23,40 @@ bool Calibration::getCalib()
     return isCalib;
 }
 
-int Calibration::getXYR(QString var, int number)
+int* Calibration::getXYR(QString varParam)
 {
-    if(var == "x"){
-        if(number == 0){
-            return x[0];
-        }else if(number == 1){
-            return x[1];
-        }
-    }else if (var == "y"){
-        if(number == 0){
-            return y[0];
-        }else if(number == 1){
-            return y[1];
-        }
-    }else if (var == "r"){
-        if(number == 0){
-            return minRadius[0];
-        }else if(number == 1){
-            return maxRadius[0];
-        }
+    if(varParam == "x"){
+        return x;
+    }else if (varParam == "y"){
+        return y;
+    }else if (varParam == "rmin"){
+        return minRadius;
+    }else if(varParam == "rmax"){
+        return maxRadius;
     }
-    return 0;
+    int err[2];
+    err[0] = 0;
+    err[1] = 0;
+    return err;
 }
 
-bool Calibration::searchCircle(QString fileNameParam, int minRadiusParam, int maxRadiusParam, QString pos)
+
+bool Calibration::searchCircle(QString fileNameParam, int minRadiusParam, int maxRadiusParam, QString leftOrRightParam)
 {
-    if(fileNameParam == NULL){
-        error = "Aucun fichier chargé";
+
+    if(!verifFileName(fileNameParam)){
         return false;
     }
 
-    if(!QFile::exists(fileNameParam)){
-        error = "Fichier non trouvé: " + fileNameParam;
-        return false;
-    }
-    fileNamePath[1] = "";
-    fileNamePath[0] = "";
     const char* filename = fileNameParam.toUtf8(); // On enregistre le lien local de l'image.
     Mat src = imread( samples::findFile( filename ), IMREAD_COLOR ); // Permet de charger l'image, indiqué dans filename.
 
     src = src.rowRange(src.size().height/2, src.size().height); // On coupe l'image en deux.
     int index = 0;
-    if(pos == "Left"){
+    if(leftOrRightParam == "Left"){
         src = src.colRange(0, src.size().width/2);
         index = 0;
-    }else if (pos == "Right"){
+    }else if (leftOrRightParam == "Right"){
         src = src.colRange(src.size().width/2, src.size().width);
         index = 1;
     }
@@ -89,8 +77,8 @@ bool Calibration::searchCircle(QString fileNameParam, int minRadiusParam, int ma
                         100, 30, minRadiusParam, maxRadiusParam // change the last two parameters
                         // (min_radius & max_radius) to detect larger circles
                         );
-        minRadiusParam = minRadiusParam+10;
-        maxRadiusParam = maxRadiusParam+10;
+        minRadiusParam = minRadiusParam+precision;
+        maxRadiusParam = maxRadiusParam+precision;
         qDebug() << "Nombre de cercle: " + QString::number(circles.size());
 
         if(maxRadiusParam >= src.size().width){
@@ -103,29 +91,30 @@ bool Calibration::searchCircle(QString fileNameParam, int minRadiusParam, int ma
     }
     c = circles[0];
 
-    if(pos == "Left"){
+    if(leftOrRightParam == "Left"){
         x[0] = c[0]-maxRadiusParam;
         y[0] = c[1]+src.size().height+maxRadiusParam;
-    }else if (pos == "Right"){
+    }else if (leftOrRightParam == "Right"){
         x[1] = c[0]+src.size().width+maxRadiusParam;
         y[1] = c[1]+src.size().height+maxRadiusParam;
     }
 
     if(maxRadiusParam < src.size().width){
-        minRadius[index] = minRadiusParam+10;
-        maxRadius[index] = maxRadiusParam+10;
+        minRadius[index] = minRadiusParam+precision;
+        maxRadius[index] = maxRadiusParam+precision;
         qDebug() << "minRadius[" + QString::number(index) + "]: " + QString::number(minRadius[index]) + ", maxRadius[" + QString::number(index) + "]: " + QString::number(maxRadius[index]);
 
         if(minRadius[0] != 0 && minRadius[1] != 0 && maxRadius[0] != 0 && maxRadius[1] != 0){
-            if(minRadius[0] < minRadius[1]-10){
+            if(minRadius[0] < minRadius[1]-precision){
                 qDebug() << "Différence de -" + QString::number(precision) + " avec minRadius[0]";
-                searchCircle(fileNamePath[0], minRadius[1]-10, maxRadius[1]-10, "Left");
-            }else if(minRadius[0] > minRadius[1]+10){
+                searchCircle(fileNamePath[0], minRadius[1]-precision, maxRadius[1]-precision, "Left");
+            }else if(minRadius[0] > minRadius[1]+precision){
                 qDebug() << "Différence de +" + QString::number(precision) + " avec minRadius[1]";
-                searchCircle(fileNamePath[1], minRadius[0]-10, maxRadius[0]-10, "Right");
+                searchCircle(fileNamePath[1], minRadius[0]-precision, maxRadius[0]-precision, "Right");
 
+            }else{
+                isCalib = true;
             }
-            qDebug() << "x1: " + QString::number(x[0]) + ", y1: " + QString::number(y[0]) + ", x2: " + QString::number(x[1]) + ", y2: " + QString::number(y[1]);
         }
     }
     qDebug() << "minRadius: " + QString::number(minRadius[0])  + ", maxRadius: " + QString::number(maxRadius[1]) + ", x1: " + QString::number(x[0]) + ", y1: " + QString::number(y[0]) + ", x2: " + QString::number(x[1]) + ", y2: " + QString::number(y[1]);
@@ -135,4 +124,23 @@ bool Calibration::searchCircle(QString fileNameParam, int minRadiusParam, int ma
 QString Calibration::getError()
 {
     return error;
+}
+
+bool Calibration::verifFileName(QString fileNameParam)
+{
+    if(isCalib){
+        error = "La calibration est déjà faite";
+        return false;
+    }
+
+    if(fileNameParam == NULL){
+        error = "Aucun fichier chargé";
+        return false;
+    }
+
+    if(!QFile::exists(fileNameParam)){
+        error = "Fichier non trouvé: " + fileNameParam;
+        return false;
+    }
+    return true;
 }

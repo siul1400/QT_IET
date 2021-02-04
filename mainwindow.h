@@ -8,6 +8,7 @@
 #include "opencv2/imgproc.hpp"
 #include "vector"
 #include "calibration.h"
+#include "cercle.h"
 
 #include <QFileDialog>
 #include <QPixmap>
@@ -29,12 +30,14 @@ public:
 
     void setOpenFileButton(bool calib);
 
+    void setActiveCalibMenu();
+
+    void setDisableCalibMenu();
+
 private slots:
     void on_openFileButton_clicked();
 
     QPixmap traitement_image(QString filename);
-
-    void on_validationButton_clicked();
 
     void on_bottomLeftButton_clicked();
 
@@ -42,8 +45,13 @@ private slots:
 
     void on_testImageButton_clicked();
 
+    void on_validNoButton_clicked();
+
+    void on_validYesButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     Calibration calibration;
+    Cercle* cercle;
 };
 #endif // MAINWINDOW_H
