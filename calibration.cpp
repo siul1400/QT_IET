@@ -34,10 +34,8 @@ int* Calibration::getXYR(QString varParam)
     }else if(varParam == "rmax"){
         return maxRadius;
     }
-    int err[2];
-    err[0] = 0;
-    err[1] = 0;
-    return err;
+
+    return {};
 }
 
 
@@ -124,6 +122,17 @@ bool Calibration::searchCircle(QString fileNameParam, int minRadiusParam, int ma
 QString Calibration::getError()
 {
     return error;
+}
+
+void Calibration::resetCalib()
+{
+    isCalib = false;
+    for(int i = 0; i < 2; i++){
+        x[i] = 0;
+        y[i] = 0;
+        minRadius[i] = 0;
+        maxRadius[i] = 0;
+    }
 }
 
 bool Calibration::verifFileName(QString fileNameParam)
