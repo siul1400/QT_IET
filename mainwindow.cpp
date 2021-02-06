@@ -43,8 +43,6 @@ void MainWindow::setDisableCalibMenu()
         ui->bottomLeftButton->setEnabled(false);
         ui->bottomRightBottom->setEnabled(false);
         ui->testImageButton->setEnabled(true);
-        ui->validNoButton->setEnabled(true);
-        ui->validYesButton->setEnabled(true);
     }
 }
 
@@ -55,6 +53,9 @@ void MainWindow::on_openFileButton_clicked()
                                                          "/Users/prof/Documents/TS2SN/Luis/Projet/OpenCv",
                                                          QFileDialog::ShowDirsOnly
                                                          | QFileDialog::DontResolveSymlinks);
+    if(cercle->searchCircle(fileName)){
+        QMessageBox::warning(this, "Erreur", cercle->getError());
+    }
 }
 
 
@@ -93,7 +94,7 @@ QPixmap MainWindow::traitement_image(QString fileName)
     }
        Point p1(calibration.getXYR("x")[0],calibration.getXYR("y")[0]), p2(calibration.getXYR("x")[1],calibration.getXYR("y")[1]);
        Scalar colorLine(0,255,0); // Green
-       int thicknessLine = 2;
+       int thicknessLine = 5;
 
        line(src, p1, p2, colorLine, thicknessLine);
 
@@ -106,7 +107,7 @@ void MainWindow::on_bottomLeftButton_clicked()
     QMessageBox::information(this, "Choisir un fichier", "Veuillez choisir l'image où le ballon est situé en bas à gauche.");
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Text"),
                                                     "/Users/prof/Documents/TS2SN/Luis/Projet/OpenCv",
-                                                    tr("Image File (*.jpg)"));
+                                                    tr("Image File (*.jpg *.png)"));
     if(!calibration.searchCircle(fileName, 20, 40, "Left")){
         QMessageBox::warning(this, "Erreur", calibration.getError());
     }else{
@@ -119,7 +120,7 @@ void MainWindow::on_bottomRightBottom_clicked()
     QMessageBox::information(this, "Choisir un fichier", "Veuillez choisir l'image où le ballon est situé en bas à droite.");
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Text"),
                                                     "/Users/prof/Documents/TS2SN/Luis/Projet/OpenCv",
-                                                    tr("Image File (*.jpg)"));
+                                                    tr("Image File (*.jpg *.png)"));
     if(!calibration.searchCircle(fileName, 20, 40, "Right")){
         QMessageBox::warning(this, "Erreur", calibration.getError());
     }else{
@@ -129,17 +130,19 @@ void MainWindow::on_bottomRightBottom_clicked()
 
 void MainWindow::on_testImageButton_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Text"),
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"),
                                                     "/Users/prof/Documents/TS2SN/Luis/Projet/OpenCv",
-                                                    tr("Image File (*.jpg)"));
+                                                    tr("Image File (*.jpg *.png)"));
 
 
     ui->imageTestLabel->setPixmap(traitement_image(fileName));
+    ui->validNoButton->setEnabled(true);
+    ui->validYesButton->setEnabled(true);
 }
 
 void MainWindow::on_validNoButton_clicked()
 {
-    calibration.setCalib(false);
+    calibration.resetCalib();
     setActiveCalibMenu();
 }
 

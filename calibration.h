@@ -58,6 +58,10 @@ public:
      */
     QString getError();
 
+    /**
+     * @brief resetCalib, Permet de renitialiser le système de calibration.
+     */
+    void resetCalib();
 
 private:
     /**
