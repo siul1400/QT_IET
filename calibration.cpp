@@ -4,13 +4,7 @@
 
 Calibration::Calibration()
 {
-    for(int i = 0; i < 2; i++){
-        fileNamePath[i] = "";
-        minRadius[i] = 0;
-        maxRadius[i] = 0;
-        x[i] = 0;
-        y[i] = 0;
-    }
+    resetCalib();
 }
 
 void Calibration::setCalib(bool calib)
@@ -128,6 +122,7 @@ void Calibration::resetCalib()
 {
     isCalib = false;
     for(int i = 0; i < 2; i++){
+        fileNamePath[i] = "";
         x[i] = 0;
         y[i] = 0;
         minRadius[i] = 0;
