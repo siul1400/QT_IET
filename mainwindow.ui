@@ -152,6 +152,23 @@
         <string>Traitement</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
+        <item row="2" column="0">
+         <widget class="QLabel" name="imageLabel">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QProgressBar" name="progressBar">
+          <property name="maximum">
+           <number>35</number>
+          </property>
+          <property name="value">
+           <number>0</number>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
          <widget class="QPushButton" name="openFileButton">
           <property name="enabled">
@@ -170,14 +187,7 @@
            </size>
           </property>
           <property name="text">
-           <string>Ouverture d'une image</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="imageLabel">
-          <property name="text">
-           <string/>
+           <string>Ouverture du dossier</string>
           </property>
          </widget>
         </item>

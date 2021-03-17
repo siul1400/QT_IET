@@ -40,7 +40,7 @@ public:
      * @param varParam, Permet de choisir qu'elle variable est retourné (x, y ou rmin, rmax), en QString.
      * @return
      */
-    int* getXYR(QString varParam);
+    int* getRayon(QString varParam);
 
     /**
      * @brief searchCircle, Permet d'avoir les coordonnées xy d'un ballon situé en bas à gauche et en bas à droite d'une image.
@@ -63,9 +63,20 @@ public:
      */
     void resetCalib();
 
-private:
     /**
-     * @brief precision, Permet de choisir le niveau de précision de la détéction (ici la précision est de 10 px) en Int.
+     * @brief getLimits, Permet de retourner un pointeur de la variable limits.
+     * @return std::vector<int>*
+     */
+    std::vector<int>* getLimits();
+
+private:
+
+    /**
+     * @brief HEIGHT_BUT, Constante pour la hauteur du but.
+     */
+    int HEIGHT_BUT = 420;
+    /**
+     * @brief precision, Permet de choisir le niveau de précision de la détéction (ici la précision est de 5 px) en Int.
      */
     int precision = 5;
 
@@ -85,14 +96,9 @@ private:
     int maxRadius[2];
 
     /**
-     * @brief x, Stocke la postion x du ballon en Int, [0] => "Ballon en bas à gauche", [1] => "Ballon en bas à droite".
+     * @brief limits, Stocke les positions pour tout les points.
      */
-    int x[2];
-
-    /**
-     * @brief y, Stocke la postion y du ballon en Int. [0] => "Ballon en bas à gauche", [1] => "Ballon en bas à droite".
-     */
-    int y[2];
+    std::vector<int> limits[12];
 
     /**
      * @brief fileNamePath, Stocke les chemins de l'image en QString. [0] => "Ballon en bas à gauche", [1] => "Ballon en bas à droite".
@@ -109,7 +115,7 @@ private:
      * @param fileNameParam, Prend le chemin de l'image en QString.
      * @return boolean.
      */
-    bool verifFileName(QString fileNameParam);
+    bool checkFileName(QString fileNameParam);
 };
 
 #endif // CALIBRATION_H

@@ -17,13 +17,9 @@ bool Calibration::getCalib()
     return isCalib;
 }
 
-int* Calibration::getXYR(QString varParam)
+int* Calibration::getRayon(QString varParam)
 {
-    if(varParam == "x"){
-        return x;
-    }else if (varParam == "y"){
-        return y;
-    }else if (varParam == "rmin"){
+    if (varParam == "rmin"){
         return minRadius;
     }else if(varParam == "rmax"){
         return maxRadius;
@@ -32,11 +28,15 @@ int* Calibration::getXYR(QString varParam)
     return {};
 }
 
+std::vector<int>* Calibration::getLimits(){
+    return limits;
+}
+
 
 bool Calibration::searchCircle(QString fileNameParam, int minRadiusParam, int maxRadiusParam, QString leftOrRightParam)
 {
 
-    if(!verifFileName(fileNameParam)){
+    if(!checkFileName(fileNameParam)){
         return false;
     }
 
@@ -83,12 +83,13 @@ bool Calibration::searchCircle(QString fileNameParam, int minRadiusParam, int ma
     }
     c = circles[0];
 
+
     if(leftOrRightParam == "Left"){
-        x[0] = c[0]-maxRadiusParam;
-        y[0] = c[1]+src.size().height+maxRadiusParam;
+        // Pour le ballon en bas à gauche.
+        limits[8] = {c[0]-maxRadiusParam, c[1]+src.size().height+maxRadiusParam};
     }else if (leftOrRightParam == "Right"){
-        x[1] = c[0]+src.size().width+maxRadiusParam;
-        y[1] = c[1]+src.size().height+maxRadiusParam;
+        // Pour le ballon en bas à droite.
+        limits[11] = {c[0]+src.size().width+maxRadiusParam, c[1]+src.size().height+maxRadiusParam};
     }
 
     if(maxRadiusParam < src.size().width){
@@ -105,11 +106,38 @@ bool Calibration::searchCircle(QString fileNameParam, int minRadiusParam, int ma
                 searchCircle(fileNamePath[1], minRadius[0]-precision, maxRadius[0]-precision, "Right");
 
             }else{
+
+                //////// Création de coin supérieur gauche et droite du but ////////
+                // En haut à gauche.
+                limits[0] = {limits[8][0], HEIGHT_BUT-maxRadius[0]};
+
+                // En haut à droite.
+                limits[3] = {limits[11][0], HEIGHT_BUT-maxRadius[1]};
+                ////////////////////////////////////////////////////////////////////
+
+                //////// Création des lines vertical ////////
+                limits[1] = {limits[3][0]/3, limits[0][1]};
+                limits[2] = {limits[3][0]/3*2, limits[3][1]};
+                limits[9] = {limits[11][0]/3, limits[8][1]};
+                limits[10] = {limits[11][0]/3*2, limits[11][1]};
+                /////////////////////////////////////////////
+
+                //////// Création des lines horizontal ////////
+                limits[4] = {limits[0][0], limits[8][1]/3};
+                limits[6] = {limits[8][0], limits[8][1]/3*2};
+                limits[5] = {limits[3][0], limits[11][1]/3};
+                limits[7] = {limits[11][0], limits[11][1]/3*2};
+                ///////////////////////////////////////////////
+
+
+
                 isCalib = true;
             }
         }
     }
-    qDebug() << "minRadius: " + QString::number(minRadius[0])  + ", maxRadius: " + QString::number(maxRadius[1]) + ", x1: " + QString::number(x[0]) + ", y1: " + QString::number(y[0]) + ", x2: " + QString::number(x[1]) + ", y2: " + QString::number(y[1]);
+    qDebug() << "minRadius: " + QString::number(minRadius[0])  + ", maxRadius: " + QString::number(maxRadius[1]) + ". En bas à gauche: x:" + QString::number(limits[8][0]) + ", y: " + QString::number(limits[8][1]) + ". En bas à droite: x: " + QString::number(limits[11][0]) + ", y: " + QString::number(limits[11][1]);
+
+
     return true;
 }
 
@@ -123,14 +151,15 @@ void Calibration::resetCalib()
     isCalib = false;
     for(int i = 0; i < 2; i++){
         fileNamePath[i] = "";
-        x[i] = 0;
-        y[i] = 0;
         minRadius[i] = 0;
         maxRadius[i] = 0;
     }
+    for(int i = 0; i < 12; i++){
+        limits[i] = {0,0};
+    }
 }
 
-bool Calibration::verifFileName(QString fileNameParam)
+bool Calibration::checkFileName(QString fileNameParam)
 {
     if(isCalib){
         error = "La calibration est déjà faite";

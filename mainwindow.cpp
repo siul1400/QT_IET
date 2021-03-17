@@ -32,8 +32,6 @@ void MainWindow::setActiveCalibMenu()
         ui->testImageButton->setEnabled(false);
         ui->validNoButton->setEnabled(false);
         ui->validYesButton->setEnabled(false);
-
-        Cercle* cercle = new Cercle(calibration.getXYR("x"), calibration.getXYR("y"), calibration.getXYR("rmin"), calibration.getXYR("rmax"));
     }
 }
 
@@ -46,6 +44,11 @@ void MainWindow::setDisableCalibMenu()
     }
 }
 
+void MainWindow::setProgressBar(int valueParam)
+{
+    ui->progressBar->setValue(valueParam);
+}
+
 
 void MainWindow::on_openFileButton_clicked()
 {
@@ -53,9 +56,10 @@ void MainWindow::on_openFileButton_clicked()
                                                          "/Users/prof/Documents/TS2SN/Luis/Projet/OpenCv",
                                                          QFileDialog::ShowDirsOnly
                                                          | QFileDialog::DontResolveSymlinks);
-    if(cercle->searchCircle(fileName)){
-        QMessageBox::warning(this, "Erreur", cercle->getError());
+    if(!this->cercle->searchCircle(fileName, ui->progressBar)){
+        QMessageBox::warning(this, "Erreur", this->cercle->getError());
     }
+
 }
 
 
@@ -63,11 +67,11 @@ QPixmap MainWindow::traitement_image(QString fileName)
 {
     const char* filename = fileName.toUtf8(); // On enregistre le lien local de l'image.
 
-    Mat src = imread( samples::findFile( filename ), IMREAD_COLOR ); // Permet de charger l'image, indiqué dans filename.
+    Mat src = imread( samples::findFile(filename), IMREAD_COLOR ); // Permet de charger l'image, indiqué dans filename.
 
     if(src.empty()){ // Vérification si l'image peut-être ouverte.
-        printf(" Erreur ouverture image\n");
-        printf(" Program Arguments: [image_name -- default %s] \n", filename);
+        //printf(" Erreur ouverture image\n");
+        //printf(" Program Arguments: [image_name -- default %s] \n", filename);
 
         QPixmap jvPhoto(":/img/error.png");
         return jvPhoto.scaled(ui->centralwidget->geometry().right(), ui->centralwidget->geometry().bottom(), Qt::KeepAspectRatioByExpanding);
@@ -80,7 +84,7 @@ QPixmap MainWindow::traitement_image(QString fileName)
     vector<Vec3f> circles;
     HoughCircles(gray, circles, HOUGH_GRADIENT, 1, // Utilisation de la transformation de Hough, technique de reconnaissance de formes.
                  gray.rows/16,  // change this value to detect circles with different distances to each other
-                 100, 30, calibration.getXYR("rmin")[0], calibration.getXYR("rmax")[0] // change the last two parameters
+                 100, 30, calibration.getRayon("rmin")[0], calibration.getRayon("rmax")[0] // change the last two parameters
                  // (min_radius & max_radius) to detect larger circles
                  );
     qDebug() << "Nombre de cercle détecté: " + QString::number(circles.size());
@@ -88,15 +92,45 @@ QPixmap MainWindow::traitement_image(QString fileName)
     {
         Vec3i c = circles[i]; // Vector 3 int c = ..., [0]->x, [1]->y, [2]->rayon.
         Point center = Point(c[0], c[1]); // coordonnées du centre du cercle.
+        qDebug() << "Pos; x: " + QString::number(c[0]) + ", y: " + QString::number(c[1]);
         circle( src, center, 1, Scalar(0,100,100), 3, LINE_AA); // Permet l'affichage d'un point au centre du cercle.
         int radius = c[2];
         circle( src, center, radius, Scalar(255,0,255), 3, LINE_AA); // Permet l'affichage du cercle.
     }
-       Point p1(calibration.getXYR("x")[0],calibration.getXYR("y")[0]), p2(calibration.getXYR("x")[1],calibration.getXYR("y")[1]);
-       Scalar colorLine(0,255,0); // Green
-       int thicknessLine = 5;
 
-       line(src, p1, p2, colorLine, thicknessLine);
+    Scalar colorLine(0,255,0); // Green
+    int thicknessLine = 5;
+
+    ////////////////////////////// Line du bas //////////////////////////////
+    Point p8(calibration.getLimits()[8][0],calibration.getLimits()[8][1]), p11(calibration.getLimits()[11][0],calibration.getLimits()[11][1]);
+    line(src, p8, p11, colorLine, thicknessLine);
+
+    ////////////////////////////// Line du haut //////////////////////////////
+    Point p0(calibration.getLimits()[0][0],calibration.getLimits()[0][1]), p3(calibration.getLimits()[3][0],calibration.getLimits()[3][1]);
+    line(src, p0, p3, colorLine, thicknessLine);
+
+    ////////////////////////////// Line Vertcial gauche //////////////////////////////
+    line(src, p0, p8, colorLine, thicknessLine);
+
+
+    ////////////////////////////// Line Vertical droite //////////////////////////////
+    line(src, p3, p11, colorLine, thicknessLine);
+
+    ////////////////////////////// Line Horizontal du haut //////////////////////////////
+    Point p4(calibration.getLimits()[4][0],calibration.getLimits()[4][1]), p5(calibration.getLimits()[5][0],calibration.getLimits()[5][1]);
+    line(src, p4, p5, colorLine, thicknessLine);
+
+    ////////////////////////////// Line Horizontal du bas //////////////////////////////
+    Point p6(calibration.getLimits()[6][0],calibration.getLimits()[6][1]), p7(calibration.getLimits()[7][0],calibration.getLimits()[7][1]);
+    line(src, p6, p7, colorLine, thicknessLine);
+
+    ////////////////////////////// Line vertical 2ème en partant de la gauche //////////////////////////////
+    Point p1(calibration.getLimits()[1][0],calibration.getLimits()[1][1]), p9(calibration.getLimits()[9][0],calibration.getLimits()[9][1]);
+    line(src, p1, p9, colorLine, thicknessLine);
+
+    ////////////////////////////// Line Horizontal 3ème en partant de la gauche //////////////////////////////
+    Point p2(calibration.getLimits()[2][0],calibration.getLimits()[2][1]), p10(calibration.getLimits()[10][0],calibration.getLimits()[10][1]);
+    line(src, p2, p10, colorLine, thicknessLine);
 
     QPixmap jvPhoto(QPixmap::fromImage(QImage(src.data, src.cols, src.rows, src.step, QImage::Format_RGB888)));
     return jvPhoto.scaled(ui->centralwidget->geometry().right(), ui->centralwidget->geometry().bottom(), Qt::KeepAspectRatioByExpanding);
@@ -149,4 +183,5 @@ void MainWindow::on_validNoButton_clicked()
 void MainWindow::on_validYesButton_clicked()
 {
     ui->tabWidget->setTabEnabled(1, calibration.getCalib());
+    this->cercle = new Cercle(calibration.getRayon("rmin"), calibration.getRayon("rmax"), calibration.getLimits());
 }

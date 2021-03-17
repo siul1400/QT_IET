@@ -2,4 +2,5 @@
     <qresource prefix="/img">
         <file>error.png</file>
     </qresource>
+    <qresource prefix="/tableur"/>
 </RCC>
