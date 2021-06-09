@@ -50,7 +50,7 @@ public:
      * @param leftOrRightParam, Prend soit 'Left' ou 'Right' en fonction du ballon s'il est situé en bas à gauche ou à droite en QString.
      * @return boolean.
      */
-    bool searchCircle(QString fileNameParam, int minRadiusParam, int maxRadiusParam, QString leftOrRightParam);
+    bool searchCircle(QString fileNameParam, int minRadiusParam, QString leftOrRightParam);
 
     /**
      * @brief getError, Permet d'avoir une erreur si searchCircles() return false.
@@ -74,11 +74,11 @@ private:
     /**
      * @brief HEIGHT_BUT, Constante pour la hauteur du but.
      */
-    int HEIGHT_BUT = 420;
+    int HEIGHT_GOAL = 420;
     /**
      * @brief precision, Permet de choisir le niveau de précision de la détéction (ici la précision est de 5 px) en Int.
      */
-    int precision = 5;
+    int precision = 10;
 
     /**
      * @brief isCalib, Permet de choisir si le système de calibration est active ou non, en Boolean.
@@ -98,7 +98,7 @@ private:
     /**
      * @brief limits, Stocke les positions pour tout les points.
      */
-    std::vector<int> limits[12];
+    std::vector<int> goalLimits[12];
 
     /**
      * @brief fileNamePath, Stocke les chemins de l'image en QString. [0] => "Ballon en bas à gauche", [1] => "Ballon en bas à droite".

@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -16,13 +16,13 @@ PKGCONFIG += opencv4
 
 SOURCES += \
     calibration.cpp \
-    cercle.cpp \
+    circleDetection.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     calibration.h \
-    cercle.h \
+    circleDetection.h \
     mainwindow.h
 
 FORMS += \
@@ -35,3 +35,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     ressources.qrc
+

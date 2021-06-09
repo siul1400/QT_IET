@@ -1,5 +1,5 @@
-#ifndef CERCLE_H
-#define CERCLE_H
+#ifndef CIRCLEDETECTION_H
+#define CIRCLEDETECTION_H
 
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/highgui.hpp"
@@ -15,6 +15,11 @@
 #include <QDate>
 #include <QTime>
 #include <QProgressBar>
+#include <QTableWidget>
+
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
 
 
 using namespace cv;
@@ -23,7 +28,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class Cercle
+class circleDetection
 {
 public:
     /**
@@ -33,7 +38,8 @@ public:
      * @param rminParam, Pointer vers un tableau.
      * @param rmaxParam, Pointer vers un tableau.
      */
-    Cercle(int* rminParam, int* rmaxParam, std::vector<int>* limitsParam);
+    circleDetection(int* rminParam, int* rmaxParam, std::vector<int>* limitsParam);
+
 
     /**
      * @brief getError, Permet d'avoir l'erreur si elle est géneré.
@@ -46,7 +52,14 @@ public:
      * @param dirNamePathParam, Chemin vers le dossier contenant les images.
      * @return Boolean.
      */
-    bool searchCircle(QString dirNamePathParam, QProgressBar* progressBarParam);
+    bool searchCircle(QString dirNamePathParam, QString dbFilePathParam, QProgressBar* progressBarParam, QTableWidget* viewParam, QTableWidget *viewStatParam);
+
+    /**
+     * @brief foundImage, Permet de retourner une image avec la un cercle.
+     * @param fileNameParam, Chemin du fichier.
+     * @return Retourne une image.
+     */
+     QPixmap foundCircle(QString fileNameParam, int centralWidgetGeometryRight, int centralWidgetGeometryBottom);
 
 
 private:
@@ -87,7 +100,7 @@ private:
     /**
      * @brief limits, Stocke tout les points.
      */
-    std::vector<int> limits[12];
+    std::vector<int> goalLimits[12];
 
     QString treatmentImage(QString imagePathParam);
 
@@ -102,10 +115,26 @@ private:
     bool isZ7(int x, int y);
 
     bool createFile(QString dirNamePathParam);
-    bool writeFile(std::vector<QString> imageNameParam, std::vector<QString> areaParam, int nbImagesParam);
+    bool writeFile(std::vector<QString> imageNameParam, std::vector<QString> areaParam, int nbImagesParam, QString dbFilePathParam);
+
+    bool showTable(QTableWidget* viewParam, QTableWidget *viewStatParam);
 
     QFile *tableFile;
 
+    bool isDetected(QString areaParam);
+
+    //////// Partie pour le traitement de l'image ////////
+
+    Mat getImage(QString fileNameParam);
+
+    Mat getModifyImage(Mat srcParam);
+
+    void getNumberCircle(Mat grayParam, std::vector<Vec3f> &circleParam);
+
+    Mat showCircle(Mat srcParam, Vec3i cParam);
+
+    QSqlQuery *model;
+
 };
 
-#endif // CERCLE_H
+#endif // CIRCLEDETECTION_H
