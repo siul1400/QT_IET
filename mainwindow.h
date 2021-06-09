@@ -8,12 +8,16 @@
 #include "opencv2/imgproc.hpp"
 #include "vector"
 #include "calibration.h"
-#include "cercle.h"
+#include "circleDetection.h"
 
 #include <QFileDialog>
 #include <QPixmap>
 #include <QDebug>
 #include <QMessageBox>
+
+
+#include <QDate>
+#include <QTime>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -34,10 +38,10 @@ public:
 
     void setDisableCalibMenu();
 
+    void setProgressBar(int valueParam);
+
 private slots:
     void on_openFileButton_clicked();
-
-    QPixmap traitement_image(QString filename);
 
     void on_bottomLeftButton_clicked();
 
@@ -49,9 +53,16 @@ private slots:
 
     void on_validYesButton_clicked();
 
+    bool treatmentDir();
+
+
+    void on_openDbButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     Calibration calibration;
-    Cercle* cercle;
+    circleDetection* circle;
+    QString pathDirImage;
+    QString pathDbFile;
 };
 #endif // MAINWINDOW_H

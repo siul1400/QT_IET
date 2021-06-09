@@ -1,29 +1,28 @@
 #include "calibration.h"
 // Voir calibration.h pour la documentation.
 
-
+//////// Initialise l'objet ////////
 Calibration::Calibration()
 {
     resetCalib();
 }
 
+//////// Permet de mettre une valeur pour isCalib ////////
 void Calibration::setCalib(bool calib)
 {
     isCalib = calib;
 }
 
+//////// Permet de retourner la valeur de isCalib ////////
 bool Calibration::getCalib()
 {
     return isCalib;
 }
 
-int* Calibration::getXYR(QString varParam)
+//////// Permet de retourner la valeur pour minRadius ou maxRadius ////////
+int* Calibration::getRayon(QString varParam)
 {
-    if(varParam == "x"){
-        return x;
-    }else if (varParam == "y"){
-        return y;
-    }else if (varParam == "rmin"){
+    if (varParam == "rmin"){
         return minRadius;
     }else if(varParam == "rmax"){
         return maxRadius;
@@ -32,11 +31,16 @@ int* Calibration::getXYR(QString varParam)
     return {};
 }
 
+//////// Permet de retourner la valeur de limits ////////
+std::vector<int>* Calibration::getLimits(){
+    return goalLimits;
+}
 
-bool Calibration::searchCircle(QString fileNameParam, int minRadiusParam, int maxRadiusParam, QString leftOrRightParam)
+
+bool Calibration::searchCircle(QString fileNameParam, int minRadiusParam, QString leftOrRightParam)
 {
 
-    if(!verifFileName(fileNameParam)){
+    if(!checkFileName(fileNameParam)){
         return false;
     }
 
@@ -65,15 +69,14 @@ bool Calibration::searchCircle(QString fileNameParam, int minRadiusParam, int ma
 
     while(circles.size() != 1){
         HoughCircles(gray, circles, HOUGH_GRADIENT, 1, // Utilisation de la transformation de Hough, technique de reconnaissance de formes.
-                        gray.rows/16,  // change this value to detect circles with different distances to each other
-                        100, 30, minRadiusParam, maxRadiusParam // change the last two parameters
-                        // (min_radius & max_radius) to detect larger circles
+                        gray.rows/16,  // modifiez cette valeur pour détecter les cercles avec des distances différentes les uns des autres
+                        100, 30, minRadiusParam, minRadiusParam+precision // Changer les deux derniers paramètres
+                        // (minRadiusParam & minRadiusParam+precision) pour changer l'intervalle de détection
                         );
-        minRadiusParam = minRadiusParam+precision;
-        maxRadiusParam = maxRadiusParam+precision;
         qDebug() << "Nombre de cercle: " + QString::number(circles.size());
+        minRadiusParam = minRadiusParam+precision;
 
-        if(maxRadiusParam >= src.size().width){
+        if(minRadiusParam+precision >= src.size().width){
 
             minRadius[index] = 0;
             maxRadius[index] = 0;
@@ -81,38 +84,68 @@ bool Calibration::searchCircle(QString fileNameParam, int minRadiusParam, int ma
             return false;
         }
     }
+    minRadiusParam = minRadiusParam-precision;
     c = circles[0];
 
+
     if(leftOrRightParam == "Left"){
-        x[0] = c[0]-maxRadiusParam;
-        y[0] = c[1]+src.size().height+maxRadiusParam;
+        // Pour le ballon en bas à gauche.
+        goalLimits[8] = {c[0]-minRadiusParam+precision, c[1]+src.size().height+minRadiusParam+precision};
     }else if (leftOrRightParam == "Right"){
-        x[1] = c[0]+src.size().width+maxRadiusParam;
-        y[1] = c[1]+src.size().height+maxRadiusParam;
+        // Pour le ballon en bas à droite.
+        goalLimits[11] = {c[0]+src.size().width+minRadiusParam+precision, c[1]+src.size().height+minRadiusParam+precision};
     }
 
-    if(maxRadiusParam < src.size().width){
-        minRadius[index] = minRadiusParam+precision;
-        maxRadius[index] = maxRadiusParam+precision;
+    if(minRadiusParam+precision < src.size().width){
+        minRadius[index] = minRadiusParam;
+        maxRadius[index] = minRadiusParam+precision;
         qDebug() << "minRadius[" + QString::number(index) + "]: " + QString::number(minRadius[index]) + ", maxRadius[" + QString::number(index) + "]: " + QString::number(maxRadius[index]);
 
         if(minRadius[0] != 0 && minRadius[1] != 0 && maxRadius[0] != 0 && maxRadius[1] != 0){
             if(minRadius[0] < minRadius[1]-precision){
                 qDebug() << "Différence de -" + QString::number(precision) + " avec minRadius[0]";
-                searchCircle(fileNamePath[0], minRadius[1]-precision, maxRadius[1]-precision, "Left");
+                searchCircle(fileNamePath[0], minRadius[1]-precision, "Left");
             }else if(minRadius[0] > minRadius[1]+precision){
                 qDebug() << "Différence de +" + QString::number(precision) + " avec minRadius[1]";
-                searchCircle(fileNamePath[1], minRadius[0]-precision, maxRadius[0]-precision, "Right");
+                searchCircle(fileNamePath[1], minRadius[0]-precision, "Right");
 
             }else{
+
+                //////// Création de coin supérieur gauche et droite du but ////////
+                // En haut à gauche.
+                goalLimits[0] = {goalLimits[8][0], HEIGHT_GOAL-maxRadius[0]};
+
+                // En haut à droite.
+                goalLimits[3] = {goalLimits[11][0], HEIGHT_GOAL-maxRadius[1]};
+                ////////////////////////////////////////////////////////////////////
+
+                //////// Création des lines vertical ////////
+                goalLimits[1] = {goalLimits[3][0]/3, goalLimits[0][1]};
+                goalLimits[2] = {goalLimits[3][0]/3*2, goalLimits[3][1]};
+                goalLimits[9] = {goalLimits[11][0]/3, goalLimits[8][1]};
+                goalLimits[10] = {goalLimits[11][0]/3*2, goalLimits[11][1]};
+                /////////////////////////////////////////////
+
+                //////// Création des lines horizontal ////////
+                goalLimits[4] = {goalLimits[0][0], goalLimits[8][1]/3};
+                goalLimits[6] = {goalLimits[8][0], goalLimits[8][1]/3*2};
+                goalLimits[5] = {goalLimits[3][0], goalLimits[11][1]/3};
+                goalLimits[7] = {goalLimits[11][0], goalLimits[11][1]/3*2};
+                ///////////////////////////////////////////////
+
+
+
                 isCalib = true;
             }
         }
     }
-    qDebug() << "minRadius: " + QString::number(minRadius[0])  + ", maxRadius: " + QString::number(maxRadius[1]) + ", x1: " + QString::number(x[0]) + ", y1: " + QString::number(y[0]) + ", x2: " + QString::number(x[1]) + ", y2: " + QString::number(y[1]);
+    qDebug() << "minRadius: " + QString::number(minRadius[0])  + ", maxRadius: " + QString::number(maxRadius[1]) + ". En bas à gauche: x:" + QString::number(goalLimits[8][0]) + ", y: " + QString::number(goalLimits[8][1]) + ". En bas à droite: x: " + QString::number(goalLimits[11][0]) + ", y: " + QString::number(goalLimits[11][1]);
+
+
     return true;
 }
 
+//////// Permet de retourner la valeur de error (L'erreur généré si problème) ////////
 QString Calibration::getError()
 {
     return error;
@@ -123,14 +156,15 @@ void Calibration::resetCalib()
     isCalib = false;
     for(int i = 0; i < 2; i++){
         fileNamePath[i] = "";
-        x[i] = 0;
-        y[i] = 0;
         minRadius[i] = 0;
         maxRadius[i] = 0;
     }
+    for(int i = 0; i < 12; i++){
+        goalLimits[i] = {0,0};
+    }
 }
 
-bool Calibration::verifFileName(QString fileNameParam)
+bool Calibration::checkFileName(QString fileNameParam)
 {
     if(isCalib){
         error = "La calibration est déjà faite";
